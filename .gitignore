@@ -1,0 +1,30 @@
+# IDE
+.vscode
+.history
+node_modules
+
+# Claude AI files
+.claude/*
+!.claude/rules/
+!.claude/rules/*
+!.claude/settings.json
+!.claude/skills
+.claude.local.md
+.codegraph
+.agents
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+
+# Project
+.obsidian
+
+output/.*
+
+# Python
+*.pyc
+__pycache__
