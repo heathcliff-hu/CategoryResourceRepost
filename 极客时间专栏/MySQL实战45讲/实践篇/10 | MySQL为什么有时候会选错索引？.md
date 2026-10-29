@@ -48,13 +48,13 @@ mysql> select * from t where a between 10000 and 20000;
 
 你说得没错，图 1 显示的就是使用 explain 命令看到的这条语句的执行情况。
 
-<img src="https://static001.geekbang.org/resource/image/2c/e3/2cfce769551c6eac9bfbee0563d48fe3.png" alt="">
+![](<../../Resource/6f0032ee3f1a8d2f849f85e4221a9e54_MD5.webp>)
 
 从图 1 看上去，这条查询语句的执行也确实符合预期，key 这个字段值是’a’，表示优化器选择了索引 a。
 
 不过别急，这个案例不会这么简单。在我们已经准备好的包含了 10 万行数据的表上，我们再做如下操作。
 
-<img src="https://static001.geekbang.org/resource/image/1e/1e/1e5ba1c2934d3b2c0d96b210a27e1a1e.png" alt="">
+![](<../../Resource/c0bf549f48b1af51174814944c4c8a95_MD5.webp>)
 
 这里，session A 的操作你已经很熟悉了，它就是开启了一个事务。随后，session B 把数据都删除后，又调用了 idata 这个存储过程，插入了 10 万行数据。
 
@@ -76,7 +76,7 @@ select * from t force index(a) where a between 10000 and 20000;/*Q2*/
 
 如图 3 所示是这三条 SQL 语句执行完成后的慢查询日志。
 
-<img src="https://static001.geekbang.org/resource/image/7c/f6/7c58b9c71853b8bba1a8ad5e926de1f6.png" alt="">
+![](<../../Resource/610ffd5c5b5349328094a3d6727f57c8_MD5.webp>)
 
 可以看到，Q1 扫描了 10 万行，显然是走了全表扫描，执行时间是 40 毫秒。Q2 扫描了 10001 行，执行了 21 毫秒。也就是说，我们在没有使用 force index 的时候，MySQL 用错了索引，导致了更长的执行时间。
 
@@ -100,7 +100,7 @@ MySQL 在真正开始执行语句之前，并不能精确地知道满足这个�
 
 我们可以使用 show index 方法，看到一个索引的基数。如图 4 所示，就是表 t 的 show index 的结果。虽然这个表的每一行的三个字段值都是一样的，但是在统计信息中，这三个索引的基数值并不同，而且其实都不准确。
 
-<img src="https://static001.geekbang.org/resource/image/16/d4/16dbf8124ad529fec0066950446079d4.png" alt="">
+![](<../../Resource/57b653d23f6a77fcd8401fab8438672c_MD5.webp>)
 
 那么，**MySQL 是怎样得到索引的基数的呢？**这里，我给你简单介绍一下 MySQL 采样统计的方法。
 
@@ -125,7 +125,7 @@ MySQL 在真正开始执行语句之前，并不能精确地知道满足这个�
 
 接下来，我们再一起看看优化器预估的，这两个语句的扫描行数是多少。
 
-<img src="https://static001.geekbang.org/resource/image/e2/89/e2bc5f120858391d4accff05573e1289.png" alt="">
+![](<../../Resource/9a2f02636ba80d6fd101616bc5d5354e_MD5.webp>)
 
 rows 这个字段表示的是预计扫描行数。
 
@@ -145,7 +145,7 @@ rows 这个字段表示的是预计扫描行数。
 
 既然是统计信息不对，那就修正。analyze table t 命令，可以用来重新统计索引信息。我们来看一下执行效果。
 
-<img src="https://static001.geekbang.org/resource/image/20/9c/209e9d3514688a3bcabbb75e54e1e49c.png" alt="">
+![](<../../Resource/6d39c086a5cb9172a08bb38fff31724e_MD5.webp>)
 
 这回对了。
 
@@ -165,7 +165,7 @@ mysql> select * from t where (a between 1 and 1000)  and (b between 50000 and 10
 
 为了便于分析，我们先来看一下 a、b 这两个索引的结构图。
 
-<img src="https://static001.geekbang.org/resource/image/1d/b9/1d037f92063e800c3bfff3f4dbf1a2b9.png" alt="">
+![](<../../Resource/2e4e524607e4b2fe7db54a3d07bbb244_MD5.webp>)
 
 如果使用索引 a 进行查询，那么就是扫描索引 a 的前 1000 个值，然后取到对应的 id，再到主键索引上去查出每一行，然后根据字段 b 来过滤。显然这样需要扫描 1000 行。
 
@@ -179,7 +179,7 @@ mysql> select * from t where (a between 1 and 1000)  and (b between 50000 and 10
 mysql> explain select * from t where (a between 1 and 1000) and (b between 50000 and 100000) order by b limit 1;
 ```
 
-<img src="https://static001.geekbang.org/resource/image/48/b8/483bcb1ef3bb902844e80d9cbdd73ab8.png" alt="">
+![](<../../Resource/0f8a250985f5fff36e40fcd4fa744f64_MD5.webp>)
 
 可以看到，返回结果中 key 字段显示，这次优化器选择了索引 b，而 rows 字段显示需要扫描的行数是 50198。
 
@@ -200,7 +200,7 @@ mysql> explain select * from t where (a between 1 and 1000) and (b between 50000
 
 我们来看看第二个例子。刚开始分析时，我们认为选择索引 a 会更好。现在，我们就来看看执行效果：
 
-<img src="https://static001.geekbang.org/resource/image/95/54/9582401a6bed6cb8fd803c9555750b54.png" alt="">
+![](<../../Resource/c0a46f4462fcfc1632b8027dc902ef88_MD5.webp>)
 
 可以看到，原本语句需要执行 2.23 秒，而当你使用 force index(a) 的时候，只用了 0.05 秒，比优化器的选择快了 40 多倍。
 
@@ -216,7 +216,7 @@ mysql> explain select * from t where (a between 1 and 1000) and (b between 50000
 
 我们来看看改之后的效果：
 
-<img src="https://static001.geekbang.org/resource/image/14/94/14cd598e52a2b72dd334a42603e5b894.png" alt="">
+![](<../../Resource/b333fc0b64763caf27309ba5928e228a_MD5.webp>)
 
 之前优化器选择使用索引 b，是因为它认为使用索引 b 可以避免排序（b 本身是索引，已经是有序的了，如果选择索引 b 的话，不需要再做排序，只需要遍历），所以即使扫描行数多，也判定为代价更小。
 
@@ -230,7 +230,7 @@ mysql> explain select * from t where (a between 1 and 1000) and (b between 50000
 mysql> select * from  (select * from t where (a between 1 and 1000)  and (b between 50000 and 100000) order by b limit 100)alias limit 1;
 ```
 
-<img src="https://static001.geekbang.org/resource/image/b1/d7/b1a2ad43c78477d7f93dbc692cbaa0d7.png" alt="">
+![](<../../Resource/940db7229bc9b6483401cc9baa72fee9_MD5.webp>)
 
 在这个例子里，我们用 limit 100 让优化器意识到，使用 b 索引代价是很高的。其实是我们根据数据特征诱导了一下优化器，也不具备通用性。
 
